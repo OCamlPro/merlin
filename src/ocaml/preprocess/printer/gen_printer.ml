@@ -16,8 +16,6 @@ let menhir =
 (** Print header, if any *)
 
 let print_header () =
-  (* let name = Filename.chop_extension (Filename.basename Sys.argv.(1)) in *)
-  (* printf "open %s\n" (String.capitalize_ascii name); *)
   List.iter
     (fun attr ->
        if is_attribute ["header"; "printer.header"] attr then
