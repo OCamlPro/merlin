@@ -26,7 +26,12 @@ module Make (G : Cmly_api.GRAMMAR) : S with module G = G = struct
 
   let cost_of_symbol =
     let measure ~has_default prj attrs =
-      if List.exists (Attribute.has_label "recovery") (prj attrs) || has_default
+      if
+        List.exists
+          (fun attr ->
+             Attribute.(has_label "recovery" attr ||
+                        has_label "recovery_with_pos" attr)) (prj attrs)
+        || has_default
       then cost_of_attributes prj attrs
       else infinity
     in
@@ -63,8 +68,11 @@ module Make (G : Cmly_api.GRAMMAR) : S with module G = G = struct
 
   let default_printer ?(fallback="raise Not_found") attrs =
     match List.find (Attribute.has_label "recovery") attrs with
-    | exception Not_found -> fallback
     | attr -> Attribute.payload attr
+    | exception Not_found ->
+      match List.find (Attribute.has_label "recovery_with_pos") attrs with
+      | attr -> Attribute.payload attr ^ " ~pos"
+      | exception Not_found -> fallback
 
   let default_terminal t =
     match Terminal.kind t with
